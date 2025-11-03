@@ -8,19 +8,24 @@ const PRINTERS = {
 };
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  // --- CORS ---
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Max-Age", "86400");
+  if (req.method === "OPTIONS") return res.status(200).end();
+  // ------------
 
-  const API_KEY = process.env.PRINT_API_KEY || "";
-  if (API_KEY && req.headers.authorization !== `Bearer ${API_KEY}`) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const { printerKey, data, cut = true } = req.body || {};
   const target = PRINTERS[printerKey];
-  if (!target || typeof data !== "string") return res.status(400).json({ error: "Bad payload" });
+  if (!target || typeof data !== "string") {
+    return res.status(400).json({ error: "Bad payload" });
+  }
 
-  const escHeader = Buffer.from([0x1B,0x40, 0x1B,0x74,0x11]);
-  const escCut    = Buffer.from([0x1D,0x56,0x41,0x10]);
+  const escHeader = Buffer.from([0x1B, 0x40, 0x1B, 0x74, 0x11]);
+  const escCut = Buffer.from([0x1D, 0x56, 0x41, 0x10]);
   const body = iconv.encode(data.replace(/\n/g, "\r\n"), "cp866");
   const payload = cut
     ? Buffer.concat([escHeader, body, Buffer.from("\r\n\r\n"), escCut])
