@@ -2,5 +2,8 @@
   "type": "module",
   "dependencies": {
     "iconv-lite": "^0.6.3"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
