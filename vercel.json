@@ -1,5 +1,9 @@
 {
   "functions": {
-    "api/print.js": { "runtime": "nodejs18.x", "maxDuration": 10, "memory": 256 }
+    "api/print.js": {
+      "runtime": "vercel-node@4.0.0",
+      "maxDuration": 10,
+      "memory": 256
+    }
   }
 }
